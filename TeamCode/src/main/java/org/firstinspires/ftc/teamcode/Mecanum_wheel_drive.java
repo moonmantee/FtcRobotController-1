@@ -95,6 +95,7 @@ public class Mecanum_wheel_drive extends LinearOpMode {
 
             leftFront.setPower(-1);
             leftBack.setPower(1);
+            leftBack.setPower(1);
 
 
         }
