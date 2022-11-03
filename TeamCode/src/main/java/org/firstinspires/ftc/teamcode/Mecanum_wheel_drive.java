@@ -83,8 +83,7 @@ public class Mecanum_wheel_drive extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
-
-
+        //MecanumHardware  robot = new MecanumHardware(this);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -92,12 +91,49 @@ public class Mecanum_wheel_drive extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            //robot.ForwardTime(0.5,1000);
+            //robot.ForwardTime(-0.5,1000);
+            leftFront.setPower(0.5);
+            leftBack.setPower(0.5);
+            rightFront.setPower(0.5);
+            rightBack.setPower(0.5);
+            sleep(1100);
+            leftFront.setPower(0);
+            leftBack.setPower(0);
+            rightFront.setPower(0);
+            rightBack.setPower(0);
 
-            leftFront.setPower(-1);
-            leftBack.setPower(1);
-            leftBack.setPower(1);
+            leftFront.setPower(-0.5);
+            leftBack.setPower(-0.5);
+            rightFront.setPower(-0.5);
+            rightBack.setPower(-0.5);
+            sleep(1100);
+            leftFront.setPower(0);
+            leftBack.setPower(0);
+            rightFront.setPower(0);
+            rightBack.setPower(0);
 
+            leftFront.setPower(0.5);
+            leftBack.setPower(-0.5);
+            rightFront.setPower(-0.5);
+            rightBack.setPower(0.5);
+            sleep(1100);
+            leftFront.setPower(0);
+            leftBack.setPower(0);
+            rightFront.setPower(0);
+            rightBack.setPower(0);
 
+            leftFront.setPower(-0.5);
+            leftBack.setPower(0.5);
+            rightFront.setPower(0.5);
+            rightBack.setPower(-0.5);
+            sleep(1100);
+            leftFront.setPower(0);
+            leftBack.setPower(0);
+            rightFront.setPower(0);
+            rightBack.setPower(0);
+
+            sleep(100000000);
         }
     }
 }
