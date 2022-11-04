@@ -83,8 +83,8 @@ public class Mecanum_wheel_drive extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
-        //MecanumHardware  robot = new MecanumHardware(this);
-
+        MecanumHardware  robot = new MecanumHardware(this);
+        robot.init();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -93,6 +93,8 @@ public class Mecanum_wheel_drive extends LinearOpMode {
         while (opModeIsActive()) {
             //robot.ForwardTime(0.5,1000);
             //robot.ForwardTime(-0.5,1000);
+            robot.encoderDrive(0.5,12,12,5000);
+/*
             leftFront.setPower(0.5);
             leftBack.setPower(0.5);
             rightFront.setPower(0.5);
@@ -112,7 +114,7 @@ public class Mecanum_wheel_drive extends LinearOpMode {
             leftBack.setPower(0);
             rightFront.setPower(0);
             rightBack.setPower(0);
-
+*/
             leftFront.setPower(0.5);
             leftBack.setPower(-0.5);
             rightFront.setPower(-0.5);
@@ -132,6 +134,7 @@ public class Mecanum_wheel_drive extends LinearOpMode {
             leftBack.setPower(0);
             rightFront.setPower(0);
             rightBack.setPower(0);
+
 
             sleep(100000000);
         }
