@@ -95,7 +95,7 @@ public class MecanumHardware {
             myOpMode.telemetry.addData("Running to", " %7d :%7d", Distance, Distance);
             myOpMode.telemetry.addData("Currently at", " at %7d :%7d", leftBack.getCurrentPosition(), rightBack.getCurrentPosition());
             myOpMode.telemetry.update();
-            myOpMode.sleep(5);
+            myOpMode.sleep(1);
         }
         leftBack.setPower(0);
         leftFront.setPower(0);
@@ -126,8 +126,8 @@ public class MecanumHardware {
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        leftFront.setPower(-Power);
-        rightFront.setPower(Power);
+        leftFront.setPower(Power);
+        rightFront.setPower(-Power);
         leftBack.setPower(-Power);
         rightBack.setPower(Power);
         myOpMode.sleep(Time);
@@ -137,54 +137,7 @@ public class MecanumHardware {
         rightBack.setPower(0);
     }
 
-    public void encoderDrive(double speed,
-                             double leftInches, double rightInches,
-                             double timeoutS) {
-        int newLeftTarget;
-        int newRightTarget;
+    public void sideDistance(double Power, int distance, double diameter, int gear_reduction) {
 
-        // Ensure that the opmode is still active
-        while (myOpMode.opModeIsActive()) {
-
-            // Determine new target position, and pass to motor controller
-            newLeftTarget = leftBack.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
-            newRightTarget = rightBack.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
-            leftBack.setTargetPosition(newLeftTarget);
-            rightBack.setTargetPosition(newRightTarget);
-
-            // Turn On RUN_TO_POSITION
-            leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            // reset the timeout time and start motion.
-            runtime.reset();
-            leftBack.setPower(Math.abs(speed));
-            rightBack.setPower(Math.abs(speed));
-
-            // keep looping while we are still active, and there is time left, and both motors are running.
-            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
-            // its target position, the motion will stop.  This is "safer" in the event that the robot will
-            // always end the motion as soon as possible.
-            // However, if you require that BOTH motors have finished their moves before the robot continues
-            // onto the next step, use (isBusy() || isBusy()) in the loop test.
-            while ((runtime.seconds() < timeoutS) && (leftBack.isBusy() && rightBack.isBusy())) {
-
-                // Display it for the driver.
-                myOpMode.telemetry.addData("Running to", " %7d :%7d", newLeftTarget, newRightTarget);
-                myOpMode.telemetry.addData("Currently at", " at %7d :%7d",
-                        leftBack.getCurrentPosition(), rightBack.getCurrentPosition());
-                myOpMode.telemetry.update();
-            }
-
-            // Stop all motion;
-            leftBack.setPower(0);
-            rightBack.setPower(0);
-
-            // Turn off RUN_TO_POSITION
-            leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            myOpMode.sleep(250);   // optional pause after each move.
-        }
     }
 }

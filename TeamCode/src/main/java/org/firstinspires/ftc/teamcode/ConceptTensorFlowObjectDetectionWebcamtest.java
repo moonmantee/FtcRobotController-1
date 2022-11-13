@@ -158,40 +158,46 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
                             telemetry.addData("- Position (Row/Col)","%.0f / %.0f", row, col);
                             telemetry.addData("- Size (Width/Height)","%.0f / %.0f", width, height);
                             if (recognition.getLabel() == "2 Bulb"){
-                                leftDrive.setPower(1);
-                                rightDrive.setPower(1);
+                                leftDrive.setPower(0.5);
+                                rightDrive.setPower(0.5);
                                 sleep(500);
                                 leftDrive.setPower(0);
                                 rightDrive.setPower(0);
-                                leftDrive.setPower(-1);
-                                rightDrive.setPower(-1);
+                                sleep(100);
+                                leftDrive.setPower(-0.5);
+                                rightDrive.setPower(-0.5);
                                 sleep(500);
                                 leftDrive.setPower(0);
                                 rightDrive.setPower(0);
+                                sleep(2000);
                             }
                             else if(recognition.getLabel() == "1 Bolt") {
-                                leftDrive.setPower(1);
-                                rightDrive.setPower(-1);
+                                leftDrive.setPower(0.5);
+                                rightDrive.setPower(-0.5);
                                 sleep(500);
                                 leftDrive.setPower(0);
                                 rightDrive.setPower(0);
-                                leftDrive.setPower(-1);
-                                rightDrive.setPower(1);
+                                sleep(100);
+                                leftDrive.setPower(-0.5);
+                                rightDrive.setPower(0.5);
                                 sleep(500);
                                 leftDrive.setPower(0);
                                 rightDrive.setPower(0);
+                                sleep(2000);
                             }
                             else if(recognition.getLabel() == "3 Panel"){
-                                leftDrive.setPower(-1);
-                                rightDrive.setPower(1);
+                                leftDrive.setPower(-0.5);
+                                rightDrive.setPower(0.5);
                                 sleep(500);
                                 leftDrive.setPower(0);
                                 rightDrive.setPower(0);
-                                leftDrive.setPower(1);
-                                rightDrive.setPower(-1);
+                                sleep(100);
+                                leftDrive.setPower(0.5);
+                                rightDrive.setPower(-0.5);
                                 sleep(500);
                                 leftDrive.setPower(0);
                                 rightDrive.setPower(0);
+                                sleep(2000);
                             }
                         }
                         telemetry.update();

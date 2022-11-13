@@ -32,6 +32,9 @@ package org.firstinspires.ftc.robotcontroller.external.samples;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import java.util.List;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -62,6 +65,10 @@ public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
      */
     private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
     // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/CustomTeamModel.tflite";
+    private ElapsedTime runtime = new ElapsedTime();
+    private DcMotor leftDrive = null;
+    private DcMotor rightDrive = null;
+
 
 
     private static final String[] LABELS = {
@@ -83,7 +90,7 @@ public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
      * and paste it in to your code on the next line, between the double quotes.
      */
     private static final String VUFORIA_KEY =
-            " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+            "Acc1Mkr/////AAABmY3MIgzTk0/vv/F6wi5F2MM+sGvjRSSjmHCxMpBjeH1FQakUSFyh5mdAiP5j69oymjPBaXTYy1XCy5UxSPU6jT1lqmVUG/z0bLDgFOxA8QQpym48FwmkGNBetyCwknfUG5QnfYDt5s9K1A/neXh+tNGMrfFX9c0JiIV8INPoDzOFyL7AO7hZ5+6War/ZQIPNSYu2RMK7owq4d6MBmGSOHE/OMjK3cEQcVufOcA3u9nX1qJCob1MGNRiG4mnkNR8d8RWHiq6rzJeH+GhIOQakqPWAMojrV5o3L9+QOQgEsiOG4hoey+jwnw8hoFbGAKHwpyIS9OedMgkKzHAkHdpjKaJhOYKeOM9jLs4ab2InSlvR";
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
@@ -103,6 +110,10 @@ public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
         // first.
         initVuforia();
         initTfod();
+        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
+        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+        leftDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightDrive.setDirection(DcMotor.Direction.FORWARD);
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
@@ -146,6 +157,27 @@ public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
                             telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100 );
                             telemetry.addData("- Position (Row/Col)","%.0f / %.0f", row, col);
                             telemetry.addData("- Size (Width/Height)","%.0f / %.0f", width, height);
+                            if (recognition.getLabel() == "2 Bulb"){
+                                leftDrive.setPower(1);
+                                rightDrive.setPower(1);
+                                sleep(5000);
+                                leftDrive.setPower(0);
+                                rightDrive.setPower(0);
+                            }
+                            else if(recognition.getLabel() == "1 Bolt") {
+                                leftDrive.setPower(1);
+                                rightDrive.setPower(-1);
+                                sleep(500);
+                                leftDrive.setPower(0);
+                                rightDrive.setPower(0);
+                            }
+                            else if(recognition.getLabel() == "3 Panel"){
+                                leftDrive.setPower(-1);
+                                rightDrive.setPower(1);
+                                sleep(5000);
+                                leftDrive.setPower(0);
+                                rightDrive.setPower(0);
+                            }
                         }
                         telemetry.update();
                     }

@@ -29,13 +29,9 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 
 /**
@@ -51,9 +47,9 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Mecanum Wheel", group="Linear Opmode")
+@TeleOp(name="Mecanum Wheel teleop", group="Linear Opmode")
 //@Disabled
-public class Mecanum_wheel_drive extends LinearOpMode {
+public class Mecanum_wheel_drive_teleop extends LinearOpMode {
 
     // Declare OpMode members.
 
@@ -92,11 +88,16 @@ public class Mecanum_wheel_drive extends LinearOpMode {
         while (opModeIsActive()) {
             //robot.ForwardTime(0.5,1000);
             //robot.ForwardTime(-0.5,1000);
-            //
-            robot.ForwardDistance(0.5,24,4,20);
-            robot.sideTime(0.5,1000);
-            robot.ForwardDistance(-0.5,-24,4,20);
-            robot.sideTime(-0.5,1000);
+            //obot.ForwardTime(gamepad1.left_stick_y,1);
+            //leftBack.setPower(gamepad1.left_stick_y);
+           // leftFront.setPower(gamepad1.left_stick_y);
+           // rightBack.setPower(gamepad1.left_stick_y);
+            //rightFront.setPower(gamepad1.left_stick_y);
+
+            leftBack.setPower(gamepad2.left_stick_x);
+            leftFront.setPower(-gamepad2.left_stick_x);
+            rightBack.setPower(-gamepad2.left_stick_x);
+            rightFront.setPower(gamepad2.left_stick_x);
 /*
             leftFront.setPower(0.5);
             leftBack.setPower(0.5);
@@ -137,7 +138,7 @@ public class Mecanum_wheel_drive extends LinearOpMode {
             leftBack.setPower(0);
             rightFront.setPower(0);
             rightBack.setPower(0);*/
-
+             
         }
     }
 }
