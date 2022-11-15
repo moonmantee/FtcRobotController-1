@@ -70,6 +70,9 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        double speed;
+        double strafe;
+        double turn;
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -86,6 +89,21 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
         robot.init();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            speed = -gamepad1.left_stick_y;
+            turn = gamepad1.right_stick_x;
+            strafe = gamepad1.left_stick_x;
+
+            double LB = speed + turn - strafe;
+            double LF = speed + turn + strafe;
+            double RB = speed - turn + strafe;
+            double RF = speed - turn - strafe;
+
+            leftBack.setPower(LB);
+            leftFront.setPower(LF);
+            rightBack.setPower(RB);
+            rightFront.setPower(RF);
+
+
             //robot.ForwardTime(0.5,1000);
             //robot.ForwardTime(-0.5,1000);
             //obot.ForwardTime(gamepad1.left_stick_y,1);
@@ -94,10 +112,10 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
            // rightBack.setPower(gamepad1.left_stick_y);
             //rightFront.setPower(gamepad1.left_stick_y);
 
-            leftBack.setPower(gamepad2.left_stick_x);
-            leftFront.setPower(-gamepad2.left_stick_x);
-            rightBack.setPower(-gamepad2.left_stick_x);
-            rightFront.setPower(gamepad2.left_stick_x);
+//            leftBack.setPower(gamepad2.left_stick_x);
+//            leftFront.setPower(-gamepad2.left_stick_x);
+//            rightBack.setPower(-gamepad2.left_stick_x);
+//            rightFront.setPower(gamepad2.left_stick_x);
 /*
             leftFront.setPower(0.5);
             leftBack.setPower(0.5);
