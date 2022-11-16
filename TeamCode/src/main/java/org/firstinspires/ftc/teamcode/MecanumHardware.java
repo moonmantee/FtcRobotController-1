@@ -138,6 +138,39 @@ public class MecanumHardware {
     }
 
     public void sideDistance(double Power, int distance, double diameter, int gear_reduction) {
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        int Distance = leftBack.getCurrentPosition() + (int) ((distance / (diameter * 3.14)) * 28 * gear_reduction);
+
+        leftBack.setTargetPosition(Distance);
+        leftFront.setTargetPosition(-Distance);
+        rightBack.setTargetPosition(-Distance);
+        rightFront.setTargetPosition(Distance);
+
+        leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        leftBack.setPower(Math.abs(Power));
+        leftFront.setPower(Math.abs(Power));
+        rightBack.setPower(Math.abs(Power));
+        rightFront.setPower(Math.abs(Power));
+        runtime.reset();
+        while (leftBack.isBusy() && rightBack.isBusy() && leftFront.isBusy() && rightFront.isBusy()) {
+
+            // Display it for the driver.
+            myOpMode.telemetry.addData("Running to", " %7d :%7d", Distance, Distance);
+            myOpMode.telemetry.addData("Currently at", " at %7d :%7d", leftBack.getCurrentPosition(), rightBack.getCurrentPosition());
+            myOpMode.telemetry.update();
+            myOpMode.sleep(1);
+        }
+        leftBack.setPower(0);
+        leftFront.setPower(0);
+        rightBack.setPower(0);
+        rightFront.setPower(0);
     }
 }
