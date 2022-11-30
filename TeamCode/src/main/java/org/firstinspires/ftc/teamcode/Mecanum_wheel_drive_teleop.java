@@ -155,8 +155,8 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
             //robot.ForwardTime(-0.5,1000);
             //obot.ForwardTime(gamepad1.left_stick_y,1);
             //leftBack.setPower(gamepad1.left_stick_y);
-           // leftFront.setPower(gamepad1.left_stick_y);
-           // rightBack.setPower(gamepad1.left_stick_y);
+            // leftFront.setPower(gamepad1.left_stick_y);
+            // rightBack.setPower(gamepad1.left_stick_y);
             //rightFront.setPower(gamepad1.left_stick_y);
 
 //            leftBack.setPower(gamepad2.left_stick_x);
@@ -173,7 +173,6 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
             leftBack.setPower(0);
             rightFront.setPower(0);
             rightBack.setPower(0);
-
             leftFront.setPower(-0.5);
             leftBack.setPower(-0.5);
             rightFront.setPower(-0.5);
@@ -193,7 +192,6 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
             leftBack.setPower(0);
             rightFront.setPower(0);
             rightBack.setPower(0);
-
             leftFront.setPower(-0.5);
             leftBack.setPower(0.5);
             rightFront.setPower(0.5);
@@ -203,7 +201,7 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
             leftBack.setPower(0);
             rightFront.setPower(0);
             rightBack.setPower(0);*/
-             
+
         }
     }
 }
