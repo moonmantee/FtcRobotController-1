@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.Range;
@@ -78,22 +79,20 @@ public class Starterbot_teleop extends LinearOpMode {
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
-        arm1.setDirection(DcMotor.Direction.FORWARD);
-        arm2.setDirection(DcMotor.Direction.REVERSE);
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        arm1.setDirection(DcMotor.Direction.REVERSE);
+        arm2.setDirection(DcMotor.Direction.FORWARD);
 
         int floor = -150;
 
         arm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
-        arm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        arm2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
@@ -104,23 +103,25 @@ public class Starterbot_teleop extends LinearOpMode {
             // Comment out the method that's not used.  The default below is POV.
 
             // Send calculated power to wheels
-            leftDrive.setPower(gamepad1.left_stick_y + gamepad1.right_stick_x);
-            rightDrive.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
-            arm1.setPower(gamepad2.left_stick_y);
-            arm2.setPower(gamepad2.right_stick_y);
+            leftDrive.setPower((gamepad1.left_stick_y + gamepad1.left_stick_x)/ 2);
+            rightDrive.setPower((gamepad1.left_stick_y - gamepad1.left_stick_x)/2);
+            arm1.setPower(gamepad1.right_stick_y/4);
+            arm2.setPower(gamepad1.right_stick_y/4);
             // Show the elapsed game time and wheel power.
 
-            if (gamepad2.a){
+            if (gamepad1.a){
                 while (arm1.getCurrentPosition() > -150){
                     arm1.setPower(0.5);
                     arm2.setPower(0.5);
 
-                    leftDrive.setPower(gamepad1.left_stick_y + gamepad1.right_stick_x);
-                    rightDrive.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
+                    leftDrive.setPower(gamepad1.left_stick_y + gamepad1.left_stick_x);
+                    rightDrive.setPower(gamepad1.left_stick_y - gamepad1.left_stick_x);
                 }
             }
-            if (gamepad2.left_bumper) {
+            if (gamepad1.left_bumper) {
                 Servo.setPower(-1);
+                sleep(700);
+                Servo.setPower(0);
             }
             Servo.setPower(0.3);
             telemetry.addData("Status", "Run Time: " + runtime.toString());

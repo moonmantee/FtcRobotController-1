@@ -31,7 +31,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 
 /**
@@ -57,6 +59,13 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
     private DcMotor rightFront = null;
     private DcMotor leftFront = null;
     private DcMotor rightBack = null;
+    private Servo flipleft = null;
+    private Servo flipright = null;
+    private CRServo claw = null;
+    private Servo coneflip = null;
+    private Servo clawflip = null;
+    private DcMotor slider = null;
+    private DcMotor lift = null;
 
     @Override
     public void runOpMode() {
@@ -70,10 +79,20 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        slider = hardwareMap.get(DcMotor.class, "slider");
+        lift = hardwareMap.get(DcMotor.class, "lift");
+        flipleft = hardwareMap.get(Servo.class, "flipleft");
+        flipright = hardwareMap.get(Servo.class, "rightFront");
+        claw = hardwareMap.get(CRServo.class, "claw");
+        coneflip = hardwareMap.get(Servo.class, "coneflip");
+        clawflip = hardwareMap.get(Servo.class, "clawflip");
         double speed;
         double strafe;
         double turn;
-
+        double pos;
+        double pos1;
+        pos = 0;
+        pos1 = 0;
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -102,8 +121,8 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
             leftFront.setPower(LF);
             rightBack.setPower(RB);
             rightFront.setPower(RF);
-
-
+            slider.setPower(gamepad2.left_stick_y);
+            lift.setPower(gamepad2.right_stick_y);
             //robot.ForwardTime(0.5,1000);
             //robot.ForwardTime(-0.5,1000);
             //obot.ForwardTime(gamepad1.left_stick_y,1);
