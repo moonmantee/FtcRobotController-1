@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -36,6 +38,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorBNO055IMUCalibration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 
 /**
@@ -51,7 +56,7 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Mecanum Wheel", group="Linear Opmode")
+@Autonomous(name="Mecanum Wheel", group="Linear Opmode")
 //@Disabled
 public class Mecanum_wheel_drive extends LinearOpMode {
 
@@ -67,6 +72,8 @@ public class Mecanum_wheel_drive extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
+
+
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
@@ -79,65 +86,74 @@ public class Mecanum_wheel_drive extends LinearOpMode {
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
         leftFront.setDirection(DcMotor.Direction.FORWARD);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
+        // Wait for the game to start (driver presses PLAY
         MecanumHardware robot = new MecanumHardware(this);
 
+        waitForStart();
+
+
         robot.init();
+
+        robot.sideDistance(-0.5, -50 , 9.7, 20);
+
+
+
+
         // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
-            //robot.ForwardTime(0.5,1000);
-            //robot.ForwardTime(-0.5,1000);
-            //
-            robot.ForwardDistance(0.5,24,4,20);
-            robot.sideTime(0.5,1000);
-            robot.ForwardDistance(-0.5,-24,4,20);
-            robot.sideTime(-0.5,1000);
-/*
-            leftFront.setPower(0.5);
-            leftBack.setPower(0.5);
-            rightFront.setPower(0.5);
-            rightBack.setPower(0.5);
-            sleep(1100);
-            leftFront.setPower(0);
-            leftBack.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-
-            leftFront.setPower(-0.5);
-            leftBack.setPower(-0.5);
-            rightFront.setPower(-0.5);
-            rightBack.setPower(-0.5);
-            sleep(1100);
-            leftFront.setPower(0);
-            leftBack.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-*/
-/*            leftFront.setPower(0.5);
-            leftBack.setPower(-0.5);
-            rightFront.setPower(-0.5);
-            rightBack.setPower(0.5);
-            sleep(1100);
-            leftFront.setPower(0);
-            leftBack.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-
-            leftFront.setPower(-0.5);
-            leftBack.setPower(0.5);
-            rightFront.setPower(0.5);
-            rightBack.setPower(-0.5);
-            sleep(1100);
-            leftFront.setPower(0);
-            leftBack.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);*/
-
-        }
+//        while (opModeIsActive()) {
+//            //robot.ForwardTime(0.5,1000);
+//            //robot.ForwardTime(-0.5,1000);
+//            //
+////            robot.ForwardDistance(0.5,24,4,20);
+////            robot.sideTime(0.5,1000);
+////            robot.ForwardDistance(-0.5,-24,4,20);
+////            robot.sideTime(-0.5,1000);
+//
+///*
+//            leftFront.setPower(0.5);
+//            leftBack.setPower(0.5);
+//            rightFront.setPower(0.5);
+//            rightBack.setPower(0.5);
+//            sleep(1100);
+//            leftFront.setPower(0);
+//            leftBack.setPower(0);
+//            rightFront.setPower(0);
+//            rightBack.setPower(0);
+//
+//            leftFront.setPower(-0.5);
+//            leftBack.setPower(-0.5);
+//            rightFront.setPower(-0.5);
+//            rightBack.setPower(-0.5);
+//            sleep(1100);
+//            leftFront.setPower(0);
+//            leftBack.setPower(0);
+//            rightFront.setPower(0);
+//            rightBack.setPower(0);
+//*/
+///*            leftFront.setPower(0.5);
+//            leftBack.setPower(-0.5);
+//            rightFront.setPower(-0.5);
+//            rightBack.setPower(0.5);
+//            sleep(1100);
+//            leftFront.setPower(0);
+//            leftBack.setPower(0);
+//            rightFront.setPower(0);
+//            rightBack.setPower(0);
+//
+//            leftFront.setPower(-0.5);
+//            leftBack.setPower(0.5);
+//            rightFront.setPower(0.5);
+//            rightBack.setPower(-0.5);
+//            sleep(1100);
+//            leftFront.setPower(0);
+//            leftBack.setPower(0);
+//            rightFront.setPower(0);
+//            rightBack.setPower(0);*/
+//
+//        }
     }
 }
