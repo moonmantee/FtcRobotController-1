@@ -98,7 +98,7 @@ public class Mecanum_wheel_drive extends LinearOpMode {
 
         robot.init();
 
-        robot.sideDistance(-0.5, -50 , 9.7, 20);
+        //robot.sideDistance(-0.5, -50 , 9.7, 20);
 
 
 

@@ -52,7 +52,7 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Concept: TensorFlow Object Detection Webcamtest", group = "Concept")
+@TeleOp(name = "Auto_test", group = "Concept")
 //@Disabled
 public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
 
@@ -63,7 +63,7 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
      * has been downloaded to the Robot Controller's SD FLASH memory, it must to be loaded using loadModelFromFile()
      * Here we assume it's an Asset.    Also see method initTfod() below .
      */
-    private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
+    private static final String TFOD_MODEL_ASSET = "firstcustomsleeve.tflite";
     // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/CustomTeamModel.tflite";
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftDrive = null;
@@ -72,9 +72,10 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
 
 
     private static final String[] LABELS = {
-            "1 Bolt",
-            "2 Bulb",
-            "3 Panel"
+            "1dot",
+            "2dot",
+            "3dot",
+            "trans"
     };
 
     /*
@@ -110,10 +111,6 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         // first.
         initVuforia();
         initTfod();
-        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
@@ -134,6 +131,8 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
+        MecanumHardware robot = new MecanumHardware(this);
+        robot.init();
         waitForStart();
 
         if (opModeIsActive()) {
@@ -157,47 +156,17 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
                             telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100 );
                             telemetry.addData("- Position (Row/Col)","%.0f / %.0f", row, col);
                             telemetry.addData("- Size (Width/Height)","%.0f / %.0f", width, height);
-                            if (recognition.getLabel() == "2 Bulb"){
-                                leftDrive.setPower(0.5);
-                                rightDrive.setPower(0.5);
-                                sleep(500);
-                                leftDrive.setPower(0);
-                                rightDrive.setPower(0);
-                                sleep(100);
-                                leftDrive.setPower(-0.5);
-                                rightDrive.setPower(-0.5);
-                                sleep(500);
-                                leftDrive.setPower(0);
-                                rightDrive.setPower(0);
-                                sleep(2000);
+                            if (recognition.getLabel() == "2dot"){
+                                robot.ForwardTime(0.5,500);
+                                robot.ForwardTime(-0.5,500);
                             }
-                            else if(recognition.getLabel() == "1 Bolt") {
-                                leftDrive.setPower(0.5);
-                                rightDrive.setPower(-0.5);
-                                sleep(500);
-                                leftDrive.setPower(0);
-                                rightDrive.setPower(0);
-                                sleep(100);
-                                leftDrive.setPower(-0.5);
-                                rightDrive.setPower(0.5);
-                                sleep(500);
-                                leftDrive.setPower(0);
-                                rightDrive.setPower(0);
-                                sleep(2000);
+                            else if(recognition.getLabel() == "1dot") {
+                                robot.sideTime(0.5,500);
+                                robot.sideTime(-0.5,500);
                             }
-                            else if(recognition.getLabel() == "3 Panel"){
-                                leftDrive.setPower(-0.5);
-                                rightDrive.setPower(0.5);
-                                sleep(500);
-                                leftDrive.setPower(0);
-                                rightDrive.setPower(0);
-                                sleep(100);
-                                leftDrive.setPower(0.5);
-                                rightDrive.setPower(-0.5);
-                                sleep(500);
-                                leftDrive.setPower(0);
-                                rightDrive.setPower(0);
-                                sleep(2000);
+                            else if(recognition.getLabel() == "3dot"){
+                                robot.sideTime(-0.5,500);
+                                robot.sideTime(0.5,500);
                             }
                         }
                         telemetry.update();

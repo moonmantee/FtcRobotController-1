@@ -17,11 +17,11 @@ public class MecanumHardware {
     private DcMotor rightFront = null;
     private DcMotor leftFront = null;
     private DcMotor rightBack = null;
-    private Servo flipleft = null;
-    private Servo flipright = null;
+    private CRServo flipleft = null;
+    private CRServo flipright = null;
     private CRServo claw = null;
-    private Servo coneflip = null;
-    private Servo clawflip = null;
+    private CRServo coneflip = null;
+    private CRServo clawflip = null;
     private DcMotor slider = null;
     private DcMotor lift = null;
     public ElapsedTime runtime = new ElapsedTime();
@@ -45,11 +45,11 @@ public class MecanumHardware {
         rightFront = myOpMode.hardwareMap.get(DcMotor.class, "rightFront");
         slider = myOpMode.hardwareMap.get(DcMotor.class, "slider");
         lift = myOpMode.hardwareMap.get(DcMotor.class, "lift");
-        flipleft = myOpMode.hardwareMap.get(Servo.class, "flipleft");
-        flipright = myOpMode.hardwareMap.get(Servo.class, "rightFront");
+        flipleft = myOpMode.hardwareMap.get(CRServo.class, "flipleft");
+        flipright = myOpMode.hardwareMap.get(CRServo.class, "flipright");
         claw = myOpMode.hardwareMap.get(CRServo.class, "claw");
-        coneflip = myOpMode.hardwareMap.get(Servo.class, "coneflip");
-        clawflip = myOpMode.hardwareMap.get(Servo.class, "clawflip");
+        coneflip = myOpMode.hardwareMap.get(CRServo.class, "coneflip");
+        clawflip = myOpMode.hardwareMap.get(CRServo.class, "clawflip");
 
         leftFront.setDirection(DcMotor.Direction.FORWARD);
         rightFront.setDirection(DcMotor.Direction.FORWARD);
@@ -189,11 +189,11 @@ public class MecanumHardware {
         rightBack.setPower(0);
         rightFront.setPower(0);
     }
-    public void flip(double Power, double angle) {
-        claw.setPower(0.5);
-        flipleft.setPosition(0.5+90-(angle/180));
-        flipright.setPosition(0.5+90-(angle/180));
-        coneflip.setPosition(0.5);
-
-    }
+//    public void flip(double Power, double angle) {
+//        claw.setPower(0.5);
+//        flipleft.setPosition(0.5+90-(angle/180));
+//        flipright.setPosition(0.5+90-(angle/180));
+//        coneflip.setPosition(0.5);
+//
+//    }
 }

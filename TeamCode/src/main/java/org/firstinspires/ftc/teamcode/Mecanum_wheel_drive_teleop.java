@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
@@ -59,11 +60,10 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
     private DcMotor rightFront = null;
     private DcMotor leftFront = null;
     private DcMotor rightBack = null;
-    private Servo flipleft = null;
-    private Servo flipright = null;
+    private DcMotor bigflip = null;
     private CRServo claw = null;
-    private Servo coneflip = null;
-    private Servo clawflip = null;
+    private CRServo coneflip = null;
+    private CRServo clawflip = null;
     private DcMotor slider = null;
     private DcMotor lift = null;
 
@@ -81,11 +81,10 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         slider = hardwareMap.get(DcMotor.class, "slider");
         lift = hardwareMap.get(DcMotor.class, "lift");
-        flipleft = hardwareMap.get(Servo.class, "flipleft");
-        flipright = hardwareMap.get(Servo.class, "rightFront");
+        bigflip = hardwareMap.get(DcMotor.class,"lift");
         claw = hardwareMap.get(CRServo.class, "claw");
-        coneflip = hardwareMap.get(Servo.class, "coneflip");
-        clawflip = hardwareMap.get(Servo.class, "clawflip");
+        coneflip = hardwareMap.get(CRServo.class, "coneflip");
+        clawflip = hardwareMap.get(CRServo.class, "clawflip");
         double speed;
         double strafe;
         double turn;
@@ -97,16 +96,21 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
         leftFront.setDirection(DcMotor.Direction.FORWARD);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
+        clawflip.setDirection(CRServo.Direction.FORWARD);
+
+        bigflip.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        MecanumHardware robot = new MecanumHardware(this);
+        //MecanumHardware robot = new MecanumHardware(this);
 
-        robot.init();
+        //robot.init();
         // run until the end of the match (driver presses STOP)
+        bigflip.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         while (opModeIsActive()) {
             speed = -gamepad1.left_stick_y;
             turn = gamepad1.right_stick_x;
@@ -123,6 +127,70 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
             rightFront.setPower(RF);
             slider.setPower(gamepad2.left_stick_y);
             lift.setPower(gamepad2.right_stick_y);
+
+            if (gamepad1.a) {
+                coneflip.setPower(0.5);
+            }
+            else if (gamepad1.b) {
+                coneflip.setPower(-0.5);
+            }
+            else{
+                coneflip.setPower(0);
+            }
+            if(gamepad2.a){
+                bigflip.setTargetPosition(180);
+                bigflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                bigflip.setPower(0.5);
+                while (bigflip.isBusy()){
+                    telemetry.update();
+                }
+                bigflip.setPower(0);
+            }
+            if(gamepad2.b){
+                bigflip.setTargetPosition(0);
+                bigflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                bigflip.setPower(0.5);
+                while (bigflip.isBusy()){
+                    telemetry.update();
+                }
+                bigflip.setPower(0);
+            }
+            if(gamepad2.x){
+                clawflip.setPower(0.5);
+            }
+            if(gamepad2.y){
+                clawflip.setPower(-0.4);
+            }
+            if(gamepad2.left_bumper) {
+                claw.setPower(-0.5);
+            }
+            if(gamepad2.right_bumper){
+                claw.setPower(0.5);
+            }
+
+            if(gamepad1.x) {
+                claw.setPower(-0.5);
+                sleep(300);
+                claw.setPower(-0.1);
+
+
+
+                clawflip.setPower(0.3);
+                sleep(200);
+                clawflip.setPower(0);
+                claw.setPower(0.3);
+                sleep(100);
+                claw.setPower(0);
+                slider.setPower(0.5);
+                sleep(2000);
+                slider.setPower(0);
+                coneflip.setPower(0.5);
+                sleep(200);
+                coneflip.setPower(0);
+            }
+
+
+
             //robot.ForwardTime(0.5,1000);
             //robot.ForwardTime(-0.5,1000);
             //obot.ForwardTime(gamepad1.left_stick_y,1);
