@@ -34,8 +34,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.util.List;
 
 
 /**
@@ -56,40 +62,116 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Testop extends LinearOpMode {
 
     // Declare OpMode members.
-    private DcMotor slider = null;
-    private DcMotor lift = null;
+    private DcMotorEx slider = null;
+    private DcMotorEx lift = null;
 
     @Override
     public void runOpMode() {
+
+        // Important Step 2: Get access to a list of Expansion Hub Modules to enable changing caching methods.
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+
+        ElapsedTime timer = new ElapsedTime();
+
+        // Important Step 3: Option A. Set all Expansion hubs to use the AUTO Bulk Caching mode
+        for (LynxModule module : allHubs) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
+        slider = hardwareMap.get(DcMotorEx.class, "slider");
+        lift = hardwareMap.get(DcMotorEx.class, "lift");
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        slider = hardwareMap.get(DcMotor.class, "slider");
-        lift = hardwareMap.get(DcMotor.class, "lift");
-        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         waitForStart();
-        int sliderstepcount = 20;
-        int targetposition = 0;
+
+        int slider_stepcount = 20;
+        int slider_position = 0;
+        int slider_initialposition = 0;
+        int slider_targetposition = 0;
+        double slider_power = 0.5;
+
+        int lift_stepcount = 20;
+        int lift_position = 0;
+        double lift_power = 0.5;
+
         while(opModeIsActive()){
-            slider.setPower(gamepad1.left_stick_x);
+            lift.setMotorEnable();
+            slider.setMotorEnable();
+
+            //check lift
+            lift_position = lift.getCurrentPosition();
+            if(gamepad1.a) {
+                lift_position += lift_stepcount;
+            }
+            else if (gamepad1.b) {
+                lift_position -= lift_stepcount;
+            }
+            lift.setTargetPosition(lift_position);
+            lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             lift.setPower(gamepad1.right_stick_y);
-//            if (gamepad1.x) {
-//                targetposition += sliderstepcount;
-//            }
-//            if (gamepad1.y) {
-//                targetposition -= sliderstepcount;
-//            }
-//                slider.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//                slider.setTargetPosition(targetposition);
-//                slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                slider.setPower(1);
-//                while(slider.isBusy()){
-//                    telemetry.addData("Position",slider.getCurrentPosition());
-//                    telemetry.update();
-//                }
-//                telemetry.addData("Position",slider.getCurrentPosition());
-//                telemetry.update();
-//                slider.setPower(0);
-//                //slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            //check slider
+            slider_position = slider.getCurrentPosition();
+            slider_initialposition = slider_position;
+            if (gamepad1.x) {
+                slider_position += slider_stepcount;
+            }
+            if (gamepad1.y) {
+                slider_position -= slider_stepcount;
+            }
+
+            slider.setTargetPosition(slider_position);
+            slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slider.setPower(slider_power);
+
+            telemetry.addData("Lift Position", lift_position);
+            telemetry.addData("Slider Position", slider_position);
+            telemetry.update();
+
+            while(slider.isBusy())
+            {
+                slider_position = slider.getCurrentPosition();
+                telemetry.addData("Lift Position", lift_position);
+                telemetry.addData("Slider Position", slider_position);
+                telemetry.update();
+            }
+
+            slider_targetposition = slider_position;
+
+            while (gamepad1.left_bumper)
+            {
+                //start the automatic process
+                slider.setTargetPosition(slider_initialposition);
+                slider.setPower(slider_power);
+
+                while(slider.isBusy())
+                {
+                    slider_position = slider.getCurrentPosition();
+                    telemetry.addData("Slider Position", slider_position);
+
+                    telemetry.addData("Slider goto Position", slider_initialposition);
+                    telemetry.update();
+                }
+
+                //loading the cone
+
+
+                //extend to target position
+                slider.setTargetPosition(slider_targetposition);
+                slider.setPower(slider_power);
+
+                while(slider.isBusy())
+                {
+                    slider_position = slider.getCurrentPosition();
+                    telemetry.addData("Slider Position", slider_position);
+
+                    telemetry.addData("Slider goto Position", slider_targetposition);
+                    telemetry.update();
+                }
+            }
         }
     }
 }
