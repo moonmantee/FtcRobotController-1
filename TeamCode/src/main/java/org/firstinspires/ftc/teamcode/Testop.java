@@ -92,26 +92,30 @@ public class Testop extends LinearOpMode {
         int slider_initialposition = 0;
         int slider_targetposition = 0;
         double slider_power = 0.5;
+        double slider_velocity = 1;
 
+        int lift_busycounter = 0;
         int lift_stepcount = 20;
         int lift_position = 0;
+        int lift_target_position = 0;
         double lift_power = 0.5;
 
-        while(opModeIsActive()){
+        while (opModeIsActive()) {
             lift.setMotorEnable();
             slider.setMotorEnable();
 
             //check lift
             lift_position = lift.getCurrentPosition();
-            if(gamepad1.a) {
+            if (gamepad1.a) {
                 lift_position += lift_stepcount;
+                if(lift_target_position < lift_position){
+                    lift_target_position = lift_position;
+                }
+            } else if (gamepad1.b) {
+                lift_target_position -= lift_stepcount;
             }
-            else if (gamepad1.b) {
-                lift_position -= lift_stepcount;
-            }
-            lift.setTargetPosition(lift_position);
+            lift.setTargetPosition(lift_target_position);
             lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            lift.setPower(gamepad1.right_stick_y);
 
             //check slider
             slider_position = slider.getCurrentPosition();
@@ -131,47 +135,52 @@ public class Testop extends LinearOpMode {
             telemetry.addData("Slider Position", slider_position);
             telemetry.update();
 
-            while(slider.isBusy())
-            {
+            while (slider.isBusy() && slider_velocity <= 0.0001) {
                 slider_position = slider.getCurrentPosition();
+                slider_velocity = slider.getVelocity();
                 telemetry.addData("Lift Position", lift_position);
                 telemetry.addData("Slider Position", slider_position);
                 telemetry.update();
             }
+            lift.setPower(0.7);
+            while (lift.isBusy()) {
+                telemetry.addData("LiftPosition",lift_position);
+                telemetry.addData("lift position",lift_busycounter ++);
+                telemetry.update();
 
-            slider_targetposition = slider_position;
+                lift.setTargetPosition(lift_position);
 
-            while (gamepad1.left_bumper)
-            {
-                //start the automatic process
-                slider.setTargetPosition(slider_initialposition);
-                slider.setPower(slider_power);
+            }
+                    slider_targetposition = slider_position;
 
-                while(slider.isBusy())
-                {
-                    slider_position = slider.getCurrentPosition();
-                    telemetry.addData("Slider Position", slider_position);
+                    while (gamepad1.left_bumper) {
+                        //start the automatic process
+                        slider.setTargetPosition(slider_initialposition);
+                        slider.setPower(slider_power);
 
-                    telemetry.addData("Slider goto Position", slider_initialposition);
-                    telemetry.update();
-                }
+                        while (slider.isBusy()) {
+                            slider_position = slider.getCurrentPosition();
+                            telemetry.addData("Slider Position", slider_position);
 
-                //loading the cone
+                            telemetry.addData("Slider goto Position", slider_initialposition);
+                            telemetry.update();
+                        }
+
+                        //loading the cone
 
 
-                //extend to target position
-                slider.setTargetPosition(slider_targetposition);
-                slider.setPower(slider_power);
+                        //extend to target position
+                        slider.setTargetPosition(slider_targetposition);
+                        slider.setPower(slider_power);
 
-                while(slider.isBusy())
-                {
-                    slider_position = slider.getCurrentPosition();
-                    telemetry.addData("Slider Position", slider_position);
+                        while (slider.isBusy()) {
+                            slider_position = slider.getCurrentPosition();
+                            telemetry.addData("Slider Position", slider_position);
 
-                    telemetry.addData("Slider goto Position", slider_targetposition);
-                    telemetry.update();
+                            telemetry.addData("Slider goto Position", slider_targetposition);
+                            telemetry.update();
+                        }
+                    }
                 }
             }
-        }
-    }
 }
