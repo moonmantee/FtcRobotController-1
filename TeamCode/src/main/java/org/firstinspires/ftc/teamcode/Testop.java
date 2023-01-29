@@ -32,6 +32,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -41,6 +42,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.security.Key;
 import java.util.List;
 
 
@@ -67,6 +69,15 @@ public class Testop extends LinearOpMode {
     private Servo coneflip=null;
     private Servo intakeflip=null;
     private Servo claw=null;
+    private DcMotor leftBack = null;
+    private DcMotor rightFront = null;
+    private DcMotor leftFront = null;
+    private DcMotor rightBack = null;
+
+    private boolean keyTrigger_lift = false;
+    private boolean keyTrigger_lift_down = false;
+    private boolean KeyTrigger_slider = false;
+    private boolean KeyTrigger_slider_back = false;
 
     @Override
     public void runOpMode()
@@ -81,7 +92,10 @@ public class Testop extends LinearOpMode {
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
-
+        leftBack  = hardwareMap.get(DcMotor.class, "leftBack");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         slider = hardwareMap.get(DcMotorEx.class, "slider");
         lift = hardwareMap.get(DcMotorEx.class, "lift");
         coneflip = hardwareMap.get(Servo.class, "coneflip");
@@ -89,6 +103,10 @@ public class Testop extends LinearOpMode {
         claw = hardwareMap.get(Servo.class, "claw");
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setDirection(DcMotor.Direction.FORWARD);
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.FORWARD);
         telemetry.log().setDisplayOrder(Telemetry.Log.DisplayOrder.NEWEST_FIRST);
         ShowOnTelemetry("0 Status Initialized");
         //telemetry.addData("Status", "Initialized");
@@ -102,7 +120,9 @@ public class Testop extends LinearOpMode {
         int slider_targetposition = 0;
         double slider_power = 0.5;
         double slider_velocity = 1;
-
+        double speed;
+        double strafe;
+        double turn;
         int lift_busycounter = 0;
         int lift_stepcount = 20;
         int lift_position = 0;
@@ -112,6 +132,21 @@ public class Testop extends LinearOpMode {
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         while (opModeIsActive()) {
+            ReadGamePadKeys();
+            speed = -gamepad2.left_stick_y;
+            turn = gamepad2.right_stick_x;
+            strafe = gamepad2.left_stick_x;
+
+            double LB = speed + turn - strafe;
+            double LF = speed + turn + strafe;
+            double RB = speed - turn + strafe;
+            double RF = speed - turn - strafe;
+
+            leftBack.setPower(LB);
+            leftFront.setPower(LF);
+            rightBack.setPower(RB);
+            rightFront.setPower(RF);
+
             if (gamepad1.dpad_up){
                 setConeflipPosition(ConeflipPosition.deliver);
             }
@@ -140,12 +175,12 @@ public class Testop extends LinearOpMode {
             lift_position = lift.getCurrentPosition();
             ShowOnTelemetry(String.format("2 lift position %s", lift_position));
 
-            if (gamepad1.y) {
+            if (keyTrigger_lift) {
                 lift_position += lift_stepcount;
                 if(lift_target_position < lift_position){
                     lift_target_position = lift_position;
                 }
-            } else if (gamepad1.a) {
+            } else if (keyTrigger_lift_down) {
                 lift_target_position -= lift_stepcount;
             }
             ShowOnTelemetry(String.format("3 set lift target position %s", lift_target_position));
@@ -155,10 +190,10 @@ public class Testop extends LinearOpMode {
 
             //check slider
             slider_position = slider.getCurrentPosition();
-            if (gamepad1.x) {
+            if (KeyTrigger_slider) {
                 slider_position += slider_stepcount;
             }
-            if (gamepad1.b) {
+            if (KeyTrigger_slider_back) {
                 slider_position -= slider_stepcount;
             }
             ShowOnTelemetry(String.format("4 set slider target position %s", slider_position));
@@ -193,11 +228,11 @@ public class Testop extends LinearOpMode {
                 while (slider.isBusy()) {
                     slider_position = slider.getCurrentPosition();
                     ShowOnTelemetry(String.format("4 set slider target position %s", slider_position));
+                    setClawPosition(ClawPosition.intake);
                 }
 
                 //loading the cone
-                setClawPosition(ClawPosition.intake);
-                sleep(500);
+
                 setIntakeflipPosition(IntakePosition.up);
                 sleep(800);
                 setClawPosition(ClawPosition.release);
@@ -213,12 +248,20 @@ public class Testop extends LinearOpMode {
                 while (slider.isBusy()) {
                     slider_position = slider.getCurrentPosition();
                     ShowOnTelemetry(String.format("4 set slider target position %s", slider_position));
+                    setIntakeflipPosition(IntakePosition.down);
                 }
                 setConeflipPosition(ConeflipPosition.deliver);
-                setIntakeflipPosition(IntakePosition.down);
                 sleep(1000);
             }
         }
+    }
+
+    public void ReadGamePadKeys()
+    {
+        keyTrigger_lift = gamepad1.y;
+        keyTrigger_lift_down = gamepad1.a;
+        KeyTrigger_slider = gamepad1.x;
+        KeyTrigger_slider_back = gamepad1.b;
     }
 
     enum ConeflipPosition{
