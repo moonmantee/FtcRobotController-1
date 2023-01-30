@@ -52,7 +52,7 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Auto_test", group = "Concept")
+@TeleOp(name = "Auto_test", group = "Linear Opmode")
 //@Disabled
 public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
 
@@ -63,8 +63,8 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
      * has been downloaded to the Robot Controller's SD FLASH memory, it must to be loaded using loadModelFromFile()
      * Here we assume it's an Asset.    Also see method initTfod() below .
      */
-    private static final String TFOD_MODEL_ASSET = "firstcustomsleeve.tflite";
-    // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/CustomTeamModel.tflite";
+    private static final String TFOD_MODEL_ASSET = "jonahsbadleftarm.tflite";
+    // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/jonahsbadleftarm.tflite";
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftDrive = null;
     private DcMotor rightDrive = null;
@@ -74,8 +74,7 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
     private static final String[] LABELS = {
             "1dot",
             "2dot",
-            "3dot",
-            "trans"
+            "3dot"
     };
 
     /*
@@ -157,16 +156,21 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
                             telemetry.addData("- Position (Row/Col)","%.0f / %.0f", row, col);
                             telemetry.addData("- Size (Width/Height)","%.0f / %.0f", width, height);
                             if (recognition.getLabel() == "2dot"){
-                                robot.ForwardTime(0.5,500);
-                                robot.ForwardTime(-0.5,500);
+                                telemetry.addData("Label", "2dot");
+                                telemetry.update();
+                                robot.ForwardDistance(0.2,24,3,19.2);
                             }
                             else if(recognition.getLabel() == "1dot") {
-                                robot.sideTime(0.5,500);
-                                robot.sideTime(-0.5,500);
+                                telemetry.addData("Label", "1dot");
+                                telemetry.update();
+                                robot.ForwardDistance(0.2,24,3,19.2);
+                                robot.sideTime(0.2,1000);
                             }
                             else if(recognition.getLabel() == "3dot"){
-                                robot.sideTime(-0.5,500);
-                                robot.sideTime(0.5,500);
+                                telemetry.addData("Label", "3dot");;
+                                telemetry.update();
+                                robot.ForwardDistance(0.2,24,3,19.2);
+                                robot.sideTime(-0.2,1000);
                             }
                         }
                         telemetry.update();
@@ -199,9 +203,9 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
             "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.75f;
+        tfodParameters.minResultConfidence = 0.0f;
         tfodParameters.isModelTensorFlow2 = true;
-        tfodParameters.inputSize = 300;
+        tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
 
         // Use loadModelFromAsset() if the TF Model is built in as an asset by Android Studio

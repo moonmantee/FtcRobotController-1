@@ -5,25 +5,26 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class MecanumHardware {
-    private LinearOpMode myOpMode = null;
+    private LinearOpMode myOpMode = null;private
+    DcMotorEx slider = null;
+    private DcMotorEx lift = null;
+    private Servo coneflip=null;
+    private Servo intakeflip=null;
+    private Servo claw=null;
     private DcMotor leftBack = null;
     private DcMotor rightFront = null;
     private DcMotor leftFront = null;
     private DcMotor rightBack = null;
-    private CRServo flipleft = null;
-    private CRServo flipright = null;
-    private CRServo claw = null;
-    private CRServo coneflip = null;
-    private CRServo clawflip = null;
-    private DcMotor slider = null;
-    private DcMotor lift = null;
     public ElapsedTime runtime = new ElapsedTime();
 
     public MecanumHardware(LinearOpMode opmode) {
@@ -39,20 +40,20 @@ public class MecanumHardware {
     static final double TURN_SPEED = 0.5;
 
     public void init() {
-        leftBack = myOpMode.hardwareMap.get(DcMotor.class, "leftBack");
-        rightBack = myOpMode.hardwareMap.get(DcMotor.class, "rightBack");
-        leftFront = myOpMode.hardwareMap.get(DcMotor.class, "leftFront");
+        leftBack  = myOpMode.hardwareMap.get(DcMotor.class, "leftBack");
         rightFront = myOpMode.hardwareMap.get(DcMotor.class, "rightFront");
-        slider = myOpMode.hardwareMap.get(DcMotor.class, "slider");
-        lift = myOpMode.hardwareMap.get(DcMotor.class, "lift");
-        flipleft = myOpMode.hardwareMap.get(CRServo.class, "flipleft");
-        flipright = myOpMode.hardwareMap.get(CRServo.class, "flipright");
-        claw = myOpMode.hardwareMap.get(CRServo.class, "claw");
-        coneflip = myOpMode.hardwareMap.get(CRServo.class, "coneflip");
-        clawflip = myOpMode.hardwareMap.get(CRServo.class, "clawflip");
-
+        leftFront  = myOpMode.hardwareMap.get(DcMotor.class, "leftFront");
+        rightBack = myOpMode.hardwareMap.get(DcMotor.class, "rightBack");
+        slider = myOpMode.hardwareMap.get(DcMotorEx.class, "slider");
+        lift = myOpMode.hardwareMap.get(DcMotorEx.class, "lift");
+        coneflip = myOpMode.hardwareMap.get(Servo.class, "coneflip");
+        intakeflip = myOpMode.hardwareMap.get(Servo.class, "intakeflip");
+        claw = myOpMode.hardwareMap.get(Servo.class, "claw");
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setDirection(DcMotor.Direction.FORWARD);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
@@ -81,7 +82,7 @@ public class MecanumHardware {
             rightFront.setPower(0);
             leftBack.setPower(0);
             rightBack.setPower(0);*/
-    public void ForwardDistance(double Power, int distance, double diameter, int gear_reduction) {
+    public void ForwardDistance(double Power, int distance, double diameter, double gear_reduction) {
 
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -153,7 +154,7 @@ public class MecanumHardware {
         rightBack.setPower(0);
     }
 
-    public void sideDistance(double Power, int distance, double diameter, int gear_reduction) {
+    public void sideDistance(double Power, int distance, double diameter, double gear_reduction) {
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -162,8 +163,8 @@ public class MecanumHardware {
         int Distance = leftBack.getCurrentPosition() + (int) ((distance / (diameter * 3.14)) * 28 * gear_reduction);
 
         leftBack.setTargetPosition(Distance);
-        leftFront.setTargetPosition(-Distance);
-        rightBack.setTargetPosition(-Distance);
+        leftFront.setTargetPosition(Distance);
+        rightBack.setTargetPosition(Distance);
         rightFront.setTargetPosition(Distance);
 
         leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);

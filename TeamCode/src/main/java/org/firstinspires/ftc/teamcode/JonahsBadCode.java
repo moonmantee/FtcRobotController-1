@@ -61,7 +61,7 @@ import java.util.List;
 
 @TeleOp(name="Testop", group="Linear Opmode")
 //@Disabled
-public class Testop extends LinearOpMode {
+public class JonahsBadCode extends LinearOpMode {
 
     // Declare OpMode members.
     private DcMotorEx slider = null;
@@ -102,6 +102,7 @@ public class Testop extends LinearOpMode {
         intakeflip = hardwareMap.get(Servo.class, "intakeflip");
         claw = hardwareMap.get(Servo.class, "claw");
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setDirection(DcMotor.Direction.FORWARD);
         rightFront.setDirection(DcMotor.Direction.REVERSE);
@@ -115,10 +116,11 @@ public class Testop extends LinearOpMode {
         waitForStart();
 
         int slider_stepcount = 20;
+        int creepincrement = 1;
         int slider_position = 0;
         int slider_initialposition = 0;
         int slider_targetposition = 0;
-        double slider_power = 0.5;
+        double slider_power = 0.75;
         double slider_velocity = 1;
         double speed;
         double strafe;
@@ -137,10 +139,20 @@ public class Testop extends LinearOpMode {
             turn = gamepad2.right_stick_x;
             strafe = gamepad2.left_stick_x;
 
-            double LB = speed + turn - strafe;
-            double LF = speed + turn + strafe;
-            double RB = speed - turn + strafe;
-            double RF = speed - turn - strafe;
+            double LB = (speed + turn - strafe)/creepincrement;
+            double LF = (speed + turn + strafe)/creepincrement;
+            double RB = (speed - turn + strafe)/creepincrement;
+            double RF = (speed - turn - strafe)/creepincrement;
+
+            if(gamepad2.left_bumper){
+                creepincrement=1;
+                telemetry.addData("creeepincrement", creepincrement);
+                telemetry.update();
+            } else if (gamepad2.right_bumper){
+                creepincrement=5;
+                telemetry.addData("creeepincrement", creepincrement);
+                telemetry.update();
+            }
 
             leftBack.setPower(LB);
             leftFront.setPower(LF);
@@ -203,7 +215,7 @@ public class Testop extends LinearOpMode {
 
             telemetry.update();
 
-            while (slider.isBusy() && slider_velocity >= 0.001) {
+            while (slider.isBusy()) {
                 //slider_position = slider.getCurrentPosition();
                 slider_velocity = slider.getVelocity();
                 ShowOnTelemetry(String.format("5 slider busy slider position %s, velocity %s", slider_position, slider_velocity));
@@ -260,8 +272,8 @@ public class Testop extends LinearOpMode {
     {
         keyTrigger_lift = gamepad1.y;
         keyTrigger_lift_down = gamepad1.a;
-        KeyTrigger_slider = gamepad1.x;
-        KeyTrigger_slider_back = gamepad1.b;
+        KeyTrigger_slider = gamepad1.b;
+        KeyTrigger_slider_back = gamepad1.x;
     }
 
     enum ConeflipPosition{
