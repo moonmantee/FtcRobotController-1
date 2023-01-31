@@ -120,7 +120,7 @@ public class JonahsBadCode extends LinearOpMode {
         int slider_position = 0;
         int slider_initialposition = 0;
         int slider_targetposition = 0;
-        double slider_power = 0.75;
+        double slider_power = 1;
         double slider_velocity = 1;
         double speed;
         double strafe;
@@ -236,11 +236,9 @@ public class JonahsBadCode extends LinearOpMode {
                 setConeflipPosition(ConeflipPosition.intake);
                 slider.setTargetPosition(slider_initialposition);
                 slider.setPower(slider_power);
-
+                setClawPosition(ClawPosition.intake);
                 while (slider.isBusy()) {
-                    slider_position = slider.getCurrentPosition();
-                    ShowOnTelemetry(String.format("4 set slider target position %s", slider_position));
-                    setClawPosition(ClawPosition.intake);
+                    telemetry.update();
                 }
 
                 //loading the cone
@@ -261,6 +259,12 @@ public class JonahsBadCode extends LinearOpMode {
                     slider_position = slider.getCurrentPosition();
                     ShowOnTelemetry(String.format("4 set slider target position %s", slider_position));
                     setIntakeflipPosition(IntakePosition.down);
+                    if (!gamepad1.left_bumper){
+                        break;
+                    }
+                }
+                if (!gamepad1.left_bumper){
+                    break;
                 }
                 setConeflipPosition(ConeflipPosition.deliver);
                 sleep(1000);
@@ -299,7 +303,7 @@ public class JonahsBadCode extends LinearOpMode {
             offset = 1;
         else
             offset = 0;
-        offset = Range.clip(offset, 0, 0.5);
+        offset = Range.clip(offset, 0.02, 0.55);
         intakeflip.setPosition(offset);
     }
     //offset: 0: release cone

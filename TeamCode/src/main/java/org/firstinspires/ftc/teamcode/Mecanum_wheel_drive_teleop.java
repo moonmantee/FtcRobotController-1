@@ -33,7 +33,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
@@ -60,12 +59,13 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
     private DcMotor rightFront = null;
     private DcMotor leftFront = null;
     private DcMotor rightBack = null;
-    private DcMotor bigflip = null;
-    private CRServo claw = null;
-    private CRServo coneflip = null;
-    private CRServo clawflip = null;
+
+    private Servo intakeflip=null;
+    private Servo claw=null;
+    private DcMotor lift=null;
+    private Servo coneflip=null;
     private DcMotor slider = null;
-    private DcMotor lift = null;
+
 
     @Override
     public void runOpMode() {
@@ -79,19 +79,21 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
-        slider = hardwareMap.get(DcMotor.class, "slider");
+        intakeflip = hardwareMap.get(Servo.class, "intakeflip");
+        claw = hardwareMap.get(Servo.class, "claw");
         lift = hardwareMap.get(DcMotor.class, "lift");
-        bigflip = hardwareMap.get(DcMotor.class,"lift");
-        claw = hardwareMap.get(CRServo.class, "claw");
-        coneflip = hardwareMap.get(CRServo.class, "coneflip");
-        clawflip = hardwareMap.get(CRServo.class, "clawflip");
+        coneflip = hardwareMap.get(Servo.class, "coneflip");
+        slider = hardwareMap.get(DcMotor.class, "slider");
         double speed;
         double strafe;
         double turn;
-        double pos;
-        double pos1;
-        pos = 0;
-        pos1 = 0;
+        int intakeliftarget=0;
+        int sliderstepcount = 20;
+        int targetposition = 0;
+        double liftpower;
+        boolean clawpositon = true;
+
+
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -100,21 +102,53 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
-        clawflip.setDirection(CRServo.Direction.FORWARD);
 
-        bigflip.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+
+
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
-        //MecanumHardware robot = new MecanumHardware(this);
 
-        //robot.init();
+        intakeflip.setDirection(Servo.Direction.FORWARD);
+
+        coneflip.setPosition(1);
+
+
+        intakeflip.setPosition(0);
+        claw.setPosition(1);
+
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setTargetPosition(200);
+        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.setPower(1);
+
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slider.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+
+        waitForStart();
+
+        // Wait for the game to start (driver presses PLAY)
+
+
+
         // run until the end of the match (driver presses STOP)
-        bigflip.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         while (opModeIsActive()) {
+//            speed = -gamepad1.left_stick_y;
+//            turn = gamepad1.right_stick_x;
+//            strafe = gamepad1.left_stick_x;
+
+//            telemetry.addData("speed", speed);
+//            telemetry.addData("turn", turn);
+//            telemetry.addData("strafe", strafe);
+//            telemetry.update();
+
+
             speed = -gamepad1.left_stick_y;
             turn = gamepad1.right_stick_x;
             strafe = gamepad1.left_stick_x;
+
 
             double LB = speed + turn - strafe;
             double LF = speed + turn + strafe;
@@ -125,123 +159,26 @@ public class Mecanum_wheel_drive_teleop extends LinearOpMode {
             leftFront.setPower(LF);
             rightBack.setPower(RB);
             rightFront.setPower(RF);
-            slider.setPower(gamepad2.left_stick_y);
-            lift.setPower(gamepad2.right_stick_y);
-
-            if (gamepad1.a) {
-                coneflip.setPower(0.5);
+            if (gamepad2.x) {
+                targetposition += sliderstepcount;
             }
-            else if (gamepad1.b) {
-                coneflip.setPower(-0.5);
+            if (gamepad2.y) {
+                targetposition -= sliderstepcount;
             }
-            else{
-                coneflip.setPower(0);
+            slider.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            slider.setTargetPosition(targetposition);
+            slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slider.setPower(1);
+            while(slider.isBusy()){
+                telemetry.addData("Position",slider.getCurrentPosition());
+                telemetry.update();
             }
-            if(gamepad2.a){
-                bigflip.setTargetPosition(180);
-                bigflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                bigflip.setPower(0.5);
-                while (bigflip.isBusy()){
-                    telemetry.update();
-                }
-                bigflip.setPower(0);
+            telemetry.addData("Position",slider.getCurrentPosition());
+            telemetry.update();
+            slider.setPower(0);
+            if(gamepad1.a){
+
             }
-            if(gamepad2.b){
-                bigflip.setTargetPosition(0);
-                bigflip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                bigflip.setPower(0.5);
-                while (bigflip.isBusy()){
-                    telemetry.update();
-                }
-                bigflip.setPower(0);
-            }
-            if(gamepad2.x){
-                clawflip.setPower(0.5);
-            }
-            if(gamepad2.y){
-                clawflip.setPower(-0.4);
-            }
-            if(gamepad2.left_bumper) {
-                claw.setPower(-0.5);
-            }
-            if(gamepad2.right_bumper){
-                claw.setPower(0.5);
-            }
-
-            if(gamepad1.x) {
-                claw.setPower(-0.5);
-                sleep(300);
-                claw.setPower(-0.1);
-
-
-
-                clawflip.setPower(0.3);
-                sleep(200);
-                clawflip.setPower(0);
-                claw.setPower(0.3);
-                sleep(100);
-                claw.setPower(0);
-                slider.setPower(0.5);
-                sleep(2000);
-                slider.setPower(0);
-                coneflip.setPower(0.5);
-                sleep(200);
-                coneflip.setPower(0);
-            }
-
-
-
-            //robot.ForwardTime(0.5,1000);
-            //robot.ForwardTime(-0.5,1000);
-            //obot.ForwardTime(gamepad1.left_stick_y,1);
-            //leftBack.setPower(gamepad1.left_stick_y);
-            // leftFront.setPower(gamepad1.left_stick_y);
-            // rightBack.setPower(gamepad1.left_stick_y);
-            //rightFront.setPower(gamepad1.left_stick_y);
-
-//            leftBack.setPower(gamepad2.left_stick_x);
-//            leftFront.setPower(-gamepad2.left_stick_x);
-//            rightBack.setPower(-gamepad2.left_stick_x);
-//            rightFront.setPower(gamepad2.left_stick_x);
-/*
-            leftFront.setPower(0.5);
-            leftBack.setPower(0.5);
-            rightFront.setPower(0.5);
-            rightBack.setPower(0.5);
-            sleep(1100);
-            leftFront.setPower(0);
-            leftBack.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-            leftFront.setPower(-0.5);
-            leftBack.setPower(-0.5);
-            rightFront.setPower(-0.5);
-            rightBack.setPower(-0.5);
-            sleep(1100);
-            leftFront.setPower(0);
-            leftBack.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-*/
-/*            leftFront.setPower(0.5);
-            leftBack.setPower(-0.5);
-            rightFront.setPower(-0.5);
-            rightBack.setPower(0.5);
-            sleep(1100);
-            leftFront.setPower(0);
-            leftBack.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-            leftFront.setPower(-0.5);
-            leftBack.setPower(0.5);
-            rightFront.setPower(0.5);
-            rightBack.setPower(-0.5);
-            sleep(1100);
-            leftFront.setPower(0);
-            leftBack.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);*/
-
         }
     }
 }

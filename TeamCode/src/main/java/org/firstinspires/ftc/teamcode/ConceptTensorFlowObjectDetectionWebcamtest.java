@@ -52,6 +52,7 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
+
 @TeleOp(name = "Auto_test", group = "Linear Opmode")
 //@Disabled
 public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
@@ -63,12 +64,13 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
      * has been downloaded to the Robot Controller's SD FLASH memory, it must to be loaded using loadModelFromFile()
      * Here we assume it's an Asset.    Also see method initTfod() below .
      */
-    private static final String TFOD_MODEL_ASSET = "jonahsbadleftarm.tflite";
+    private static final String TFOD_MODEL_ASSET = "1dot2dot3dot.tflite";
     // private static final String TFOD_MODEL_FILE  = "/sdcard/FIRST/tflitemodels/jonahsbadleftarm.tflite";
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftDrive = null;
-    private DcMotor rightDrive = null;
-
+    private DcMotor leftBack = null;
+    private DcMotor rightFront = null;
+    private DcMotor leftFront = null;
+    private DcMotor rightBack = null;
 
 
     private static final String[] LABELS = {
@@ -132,6 +134,10 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         telemetry.update();
         MecanumHardware robot = new MecanumHardware(this);
         robot.init();
+        leftBack  = hardwareMap.get(DcMotor.class, "leftBack");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         waitForStart();
 
         if (opModeIsActive()) {
@@ -158,19 +164,19 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
                             if (recognition.getLabel() == "2dot"){
                                 telemetry.addData("Label", "2dot");
                                 telemetry.update();
-                                robot.ForwardDistance(0.2,24,3,19.2);
+
                             }
                             else if(recognition.getLabel() == "1dot") {
                                 telemetry.addData("Label", "1dot");
                                 telemetry.update();
-                                robot.ForwardDistance(0.2,24,3,19.2);
-                                robot.sideTime(0.2,1000);
+//                                robot.ForwardDistance(0.2,24,3,19.2);
+//                                robot.sideTime(0.2,1000);
                             }
                             else if(recognition.getLabel() == "3dot"){
                                 telemetry.addData("Label", "3dot");;
                                 telemetry.update();
-                                robot.ForwardDistance(0.2,24,3,19.2);
-                                robot.sideTime(-0.2,1000);
+//                                robot.ForwardDistance(0.2,24,3,19.2);
+//                                robot.sideTime(-0.2,1000);
                             }
                         }
                         telemetry.update();
@@ -203,7 +209,7 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
             "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.0f;
+        tfodParameters.minResultConfidence = 0.6f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
