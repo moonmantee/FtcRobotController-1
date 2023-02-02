@@ -112,12 +112,12 @@ public class TeleopMultiThread extends LinearOpMode {
 
         waitForStart();
 
-        int slider_stepcount = 20;
+        int slider_stepcount = 50;
         int creepincrement = 1;
         int slider_position = 0;
         int slider_initialposition = 0;
         int slider_targetposition = 0;
-        double slider_power = 1;
+        double slider_power = 0.9;
         double slider_velocity = 1;
         double speed;
         double strafe;
@@ -156,30 +156,25 @@ public class TeleopMultiThread extends LinearOpMode {
 
 
 
-            if (gamepad1.right_trigger>0){
+            if (gamepad1.left_trigger>0.2){
                 setConeflipPosition(ConeflipPosition.deliver);
                 slider_targetposition = slider_position;
+                ShowOnTelemetry(String.format("4 trigger set slider target position %s", slider_targetposition));
             }
-            if (gamepad1.left_trigger>0){
-                setConeflipPosition(ConeflipPosition.intake);
+            if (gamepad1.right_trigger>0.2){
+                PickupConeThenRelease();
             }
             if (gamepad2.x){
-                setIntakeflipPosition(IntakePosition.up);
+                setClawPosition(ClawPosition.intake);
             }
             if (gamepad2.b){
                 setClawPosition(ClawPosition.release);
             }
             if (gamepad2.y){
-                setIntakeflipPosition(IntakePosition.down);
-                setClawPosition(ClawPosition.release);
-                sleep(800);
-                setClawPosition(ClawPosition.intake);
-                sleep(800);
                 setIntakeflipPosition(IntakePosition.up);
             }
             if (gamepad2.a){
                 setIntakeflipPosition(IntakePosition.down);
-
             }
 
 
@@ -209,16 +204,17 @@ public class TeleopMultiThread extends LinearOpMode {
                 telemetry.update();
             }
 
-            slider_targetposition = slider_position;
+//            slider_targetposition = slider_position;
 
             while (gamepad1.left_bumper) {
+                ShowOnTelemetry(String.format("4 set slider target position %s", slider_targetposition));
 
                 //start the automatic process
-
-                setClawPosition(ClawPosition.intake);
-                setIntakeflipPosition(IntakePosition.down);
+                setConeflipPosition(ConeflipPosition.intake);
+                //setClawPosition(ClawPosition.intake);
+                //setIntakeflipPosition(IntakePosition.down);
                 slider.setTargetPosition(slider_initialposition);
-                slider.setPower(slider_power);
+                slider.setPower(0.2);
 
                 while (slider.isBusy()) {
                     //slider_position = slider.getCurrentPosition();
@@ -229,14 +225,18 @@ public class TeleopMultiThread extends LinearOpMode {
                 if (!gamepad1.left_bumper){
                     break;
                 }
+                sleep(500);
                 //loading the cone
 
-                setIntakeflipPosition(IntakePosition.up);
-                sleep(650);
-                setClawPosition(ClawPosition.release);
-                sleep(500);
+//                setIntakeflipPosition(IntakePosition.up);
+//                sleep(800);
+//                setClawPosition(ClawPosition.release);
+//                sleep(450);
                 //extend to target position
+                PickupConeThenRelease();
                 slider.setTargetPosition(slider_targetposition);
+                ShowOnTelemetry(String.format("4 set slider target position %s", slider_targetposition));
+
                 slider.setPower(slider_power);
 
                 while (slider.isBusy()) {
@@ -248,12 +248,13 @@ public class TeleopMultiThread extends LinearOpMode {
                     //ShowOnTelemetry(String.format("4 set slider target position %s", slider_position));
                     //setIntakeflipPosition(IntakePosition.down);
                 }
+                sleep(500);
 
                 if (!gamepad1.left_bumper){
                     break;
                 }
                 setConeflipPosition(ConeflipPosition.deliver);
-                sleep(450);
+                sleep(1000);
             }
         }
 
@@ -267,6 +268,18 @@ public class TeleopMultiThread extends LinearOpMode {
         KeyTrigger_slider = gamepad1.b;
         KeyTrigger_slider_back = gamepad1.x;
     }
+    public void PickupConeThenRelease()
+    {
+        setConeflipPosition(ConeflipPosition.intake);
+        setClawPosition(ClawPosition.intake);
+        sleep(1000);
+        setIntakeflipPosition(IntakePosition.up);
+        sleep(600);
+        setClawPosition(ClawPosition.release);
+        sleep(1000);
+        setIntakeflipPosition(IntakePosition.down);
+        sleep(1000);
+    }
 
     enum ConeflipPosition{
         intake,
@@ -278,7 +291,7 @@ public class TeleopMultiThread extends LinearOpMode {
             offset = 1;
         else
             offset = 0;
-        offset = Range.clip(offset, 0.3, 0.8);
+        offset = Range.clip(offset, 0.2, 0.8);
         coneflip.setPosition(offset);
     }
     enum IntakePosition{
@@ -291,7 +304,7 @@ public class TeleopMultiThread extends LinearOpMode {
             offset = 1;
         else
             offset = 0;
-        offset = Range.clip(offset, 0, 0.5);
+        offset = Range.clip(offset, 0.06, 0.55);
         intakeflip.setPosition(offset);
     }
     //offset: 0: release cone
@@ -345,7 +358,7 @@ public class TeleopMultiThread extends LinearOpMode {
                     // we record the Y values in the main class to make showing them in telemetry
                     // easier.
                     lift_position = lift.getCurrentPosition();
-                    ShowOnTelemetry(String.format("2 lift position %s", lift_position));
+                    //ShowOnTelemetry(String.format("2 lift position %s", lift_position));
 
                     if (gamepad1.y) {
                         lift_position += lift_stepcount;
@@ -355,13 +368,13 @@ public class TeleopMultiThread extends LinearOpMode {
                     } else if (gamepad1.a) {
                         lift_target_position -= lift_stepcount;
                     }
-                    ShowOnTelemetry(String.format("3 set lift target position %s", lift_target_position));
+                    //ShowOnTelemetry(String.format("3 set lift target position %s", lift_target_position));
                     lift.setTargetPosition(lift_target_position);
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     lift.setPower(0.7);
 
 
-                    sleep(100);
+                    idle();
                 }
             }
 
@@ -370,7 +383,7 @@ public class TeleopMultiThread extends LinearOpMode {
             //catch (InterruptedException e) {ShowOnTelemetry(String.format("%s interrupted", this.getName()));}
             // an error occurred in the run loop.
             catch (Exception e) {
-
+                throw e;
             }
 
             ShowOnTelemetry(String.format("end of thread %s", this.getName()));

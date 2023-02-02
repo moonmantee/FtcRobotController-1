@@ -29,10 +29,13 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -53,7 +56,8 @@ import java.util.List;
  * is explained below.
  */
 
-@TeleOp(name = "Auto_test", group = "Linear Opmode")
+//@TeleOp(name = "Auto_test", group = "Linear Opmode")
+@Autonomous(name="Robot: Auto_test", group="Robot")
 //@Disabled
 public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
 
@@ -71,6 +75,13 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
     private DcMotor rightFront = null;
     private DcMotor leftFront = null;
     private DcMotor rightBack = null;
+    private Servo intakeflip=null;
+
+    float speed = 0;
+    float turn = 0;
+    float strafe = 0;
+    int creepincrement = 4;
+    boolean WorkDone = false;
 
 
     private static final String[] LABELS = {
@@ -138,10 +149,14 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        intakeflip = hardwareMap.get(Servo.class, "intakeflip");
+
         waitForStart();
 
         if (opModeIsActive()) {
-            while (opModeIsActive()) {
+            while (opModeIsActive() && !WorkDone) {
+                setIntakeflipPosition(TeleopMultiThread.IntakePosition.up);
+                sleep(1000);
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
@@ -164,19 +179,29 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
                             if (recognition.getLabel() == "2dot"){
                                 telemetry.addData("Label", "2dot");
                                 telemetry.update();
+                                parking2();
+                                sleep(1000);
 
+                                WorkDone = true;
+                                break;
                             }
                             else if(recognition.getLabel() == "1dot") {
                                 telemetry.addData("Label", "1dot");
                                 telemetry.update();
-//                                robot.ForwardDistance(0.2,24,3,19.2);
-//                                robot.sideTime(0.2,1000);
+                                parking1();
+                                sleep(1000);
+
+                                WorkDone = true;
+                                break;
                             }
                             else if(recognition.getLabel() == "3dot"){
                                 telemetry.addData("Label", "3dot");;
                                 telemetry.update();
-//                                robot.ForwardDistance(0.2,24,3,19.2);
-//                                robot.sideTime(-0.2,1000);
+                                parking3();
+                                sleep(1000);
+
+                                WorkDone = true;
+                                break;
                             }
                         }
                         telemetry.update();
@@ -218,5 +243,107 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         // Use loadModelFromFile() if you have downloaded a custom team model to the Robot Controller's FLASH.
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
         // tfod.loadModelFromFile(TFOD_MODEL_FILE, LABELS);
+    }
+
+    //move straight, then move left
+    public void parking1() {
+
+        parking2();
+
+        speed = 0;
+        //turn = gamepad2.right_stick_x;
+        strafe = -1;
+
+        double LB = (speed + turn - strafe)/creepincrement;
+        double LF = (speed + turn + strafe)/creepincrement;
+        double RB = (speed - turn + strafe)/creepincrement;
+        double RF = (speed - turn - strafe)/creepincrement;
+
+        for (int i=0; i<44000; i++){
+            leftBack.setPower(LB);
+            leftFront.setPower(LF);
+            rightBack.setPower(RB);
+            rightFront.setPower(RF);
+        }
+
+        telemetry.addData("position", leftBack.getCurrentPosition());
+        //after was 4197
+        telemetry.update();
+        leftBack.setPower(0);
+        leftFront.setPower(0);
+        rightBack.setPower(0);
+        rightFront.setPower(0);
+
+    }
+
+    //move straight
+    public void parking2() {
+        speed = 1;
+        //turn = gamepad2.right_stick_x;
+        strafe = 0; //gamepad2.left_stick_x;
+
+
+        double LB = (speed + turn - strafe)/creepincrement;
+        double LF = (speed + turn + strafe)/creepincrement;
+        double RB = (speed - turn + strafe)/creepincrement;
+        double RF = (speed - turn - strafe)/creepincrement;
+        for (int i=0; i<36000; i++){
+            leftBack.setPower(LB);
+            leftFront.setPower(LF);
+            rightBack.setPower(RB);
+            rightFront.setPower(RF);
+            idle();
+        }
+        telemetry.addData("position", leftBack.getCurrentPosition());
+        //after was encoder position 3774
+        telemetry.update();
+        leftBack.setPower(0);
+        leftFront.setPower(0);
+        rightBack.setPower(0);
+        rightFront.setPower(0);
+
+    }
+
+    //move straight, then move right
+    public void parking3() {
+
+        parking2();
+        sleep(500);
+        speed = 0;
+        //turn = gamepad2.right_stick_x;
+        strafe = 1;
+
+        double LB = (speed + turn - strafe)/creepincrement;
+        double LF = (speed + turn + strafe)/creepincrement;
+        double RB = (speed - turn + strafe)/creepincrement;
+        double RF = (speed - turn - strafe)/creepincrement;
+
+        for (int i=0; i<44000; i++){
+            leftBack.setPower(LB);
+            leftFront.setPower(LF);
+            rightBack.setPower(RB);
+            rightFront.setPower(RF);
+        }
+        telemetry.addData("position", leftBack.getCurrentPosition());
+        telemetry.update();
+        leftBack.setPower(0);
+        leftFront.setPower(0);
+        rightBack.setPower(0);
+        rightFront.setPower(0);
+
+    }
+
+    enum IntakePosition{
+        up,
+        down
+    }
+    public void setIntakeflipPosition(TeleopMultiThread.IntakePosition position) {
+        double offset = 0;
+        if (position == TeleopMultiThread.IntakePosition.up)
+            offset = 1;
+        else
+            offset = 0;
+        offset = Range.clip(offset, 0, 0.5);
+        intakeflip.setPosition(offset);
     }
 }
