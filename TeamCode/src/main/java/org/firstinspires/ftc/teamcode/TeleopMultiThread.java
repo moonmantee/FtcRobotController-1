@@ -211,10 +211,9 @@ public class TeleopMultiThread extends LinearOpMode {
 
                 //start the automatic process
                 setConeflipPosition(ConeflipPosition.intake);
-                //setClawPosition(ClawPosition.intake);
                 //setIntakeflipPosition(IntakePosition.down);
                 slider.setTargetPosition(slider_initialposition);
-                slider.setPower(0.2);
+                slider.setPower(0.4);
 
                 while (slider.isBusy()) {
                     //slider_position = slider.getCurrentPosition();
@@ -274,7 +273,7 @@ public class TeleopMultiThread extends LinearOpMode {
         setClawPosition(ClawPosition.intake);
         sleep(1000);
         setIntakeflipPosition(IntakePosition.up);
-        sleep(600);
+        sleep(700); //eians'fix
         setClawPosition(ClawPosition.release);
         sleep(1000);
         setIntakeflipPosition(IntakePosition.down);
@@ -304,7 +303,7 @@ public class TeleopMultiThread extends LinearOpMode {
             offset = 1;
         else
             offset = 0;
-        offset = Range.clip(offset, 0.06, 0.55);
+        offset = Range.clip(offset, 0.04, 0.55);
         intakeflip.setPosition(offset);
     }
     //offset: 0: release cone
@@ -320,7 +319,7 @@ public class TeleopMultiThread extends LinearOpMode {
         else
             offset = 0;
 
-        offset = Range.clip(offset, 0, 0.8);
+        offset = Range.clip(offset, 0, 1.0); //Eian fix
         claw.setPosition(offset);
     }
     public void ShowOnTelemetry(String msg)
