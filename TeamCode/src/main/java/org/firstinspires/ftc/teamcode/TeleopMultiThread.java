@@ -34,6 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -101,10 +102,10 @@ public class TeleopMultiThread extends LinearOpMode {
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftFront.setDirection(DcMotor.Direction.FORWARD);
-        rightFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
-        rightBack.setDirection(DcMotor.Direction.FORWARD);
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        leftBack.setDirection(DcMotor.Direction.FORWARD);
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
         telemetry.log().setDisplayOrder(Telemetry.Log.DisplayOrder.NEWEST_FIRST);
         ShowOnTelemetry("0 Status Initialized");
         //telemetry.addData("Status", "Initialized");
@@ -273,7 +274,7 @@ public class TeleopMultiThread extends LinearOpMode {
         setClawPosition(ClawPosition.intake);
         sleep(1000);
         setIntakeflipPosition(IntakePosition.up);
-        sleep(700); //eians'fix
+        sleep(800); //eians'fix
         setClawPosition(ClawPosition.release);
         sleep(1000);
         setIntakeflipPosition(IntakePosition.down);
@@ -319,7 +320,7 @@ public class TeleopMultiThread extends LinearOpMode {
         else
             offset = 0;
 
-        offset = Range.clip(offset, 0, 1.0); //Eian fix
+        offset = Range.clip(offset, 0, 1); //Eian fix
         claw.setPosition(offset);
     }
     public void ShowOnTelemetry(String msg)
@@ -365,12 +366,13 @@ public class TeleopMultiThread extends LinearOpMode {
                             lift_target_position = lift_position;
                         }
                     } else if (gamepad1.a) {
-                        lift_target_position -= lift_stepcount;
+
+                        lift_target_position -= 1;
                     }
                     //ShowOnTelemetry(String.format("3 set lift target position %s", lift_target_position));
                     lift.setTargetPosition(lift_target_position);
                     lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    lift.setPower(0.7);
+                    lift.setPower(0.5);
 
 
                     idle();

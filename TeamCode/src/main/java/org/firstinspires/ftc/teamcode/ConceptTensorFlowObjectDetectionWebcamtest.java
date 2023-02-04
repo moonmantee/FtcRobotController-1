@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -82,6 +83,9 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
     float strafe = 0;
     int creepincrement = 4;
     boolean WorkDone = false;
+    int lb_initposition = 0;
+    int lb_loc2position = 0;
+    int lb_loc1position = 0;
 
 
     private static final String[] LABELS = {
@@ -151,6 +155,14 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         intakeflip = hardwareMap.get(Servo.class, "intakeflip");
 
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        leftBack.setDirection(DcMotor.Direction.FORWARD);
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
+
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         waitForStart();
 
         if (opModeIsActive()) {
@@ -180,7 +192,7 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
                                 telemetry.addData("Label", "2dot");
                                 telemetry.update();
                                 parking2();
-                                sleep(1000);
+                                sleep(10000);
 
                                 WorkDone = true;
                                 break;
@@ -189,16 +201,16 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
                                 telemetry.addData("Label", "1dot");
                                 telemetry.update();
                                 parking1();
-                                sleep(1000);
+                                sleep(10000);
 
                                 WorkDone = true;
                                 break;
                             }
                             else if(recognition.getLabel() == "3dot"){
-                                telemetry.addData("Label", "3dot");;
+                                telemetry.addData("Label", "3dot");
                                 telemetry.update();
                                 parking3();
-                                sleep(1000);
+                                sleep(10000);
 
                                 WorkDone = true;
                                 break;
@@ -247,7 +259,6 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
 
     //move straight, then move left
     public void parking1() {
-
         parking2();
 
         speed = 0;
@@ -258,16 +269,16 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         double LF = (speed + turn + strafe)/creepincrement;
         double RB = (speed - turn + strafe)/creepincrement;
         double RF = (speed - turn - strafe)/creepincrement;
-
-        for (int i=0; i<44000; i++){
+        while (leftBack.getCurrentPosition() < 3200){
             leftBack.setPower(LB);
             leftFront.setPower(LF);
             rightBack.setPower(RB);
             rightFront.setPower(RF);
+            idle();
         }
-
-        telemetry.addData("position", leftBack.getCurrentPosition());
-        //after was 4197
+        lb_loc1position = leftBack.getCurrentPosition();
+        telemetry.addData("2pos",lb_loc2position);
+        telemetry.addData("1pos",lb_loc1position);
         telemetry.update();
         leftBack.setPower(0);
         leftFront.setPower(0);
@@ -282,21 +293,22 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         //turn = gamepad2.right_stick_x;
         strafe = 0; //gamepad2.left_stick_x;
 
-
         double LB = (speed + turn - strafe)/creepincrement;
         double LF = (speed + turn + strafe)/creepincrement;
         double RB = (speed - turn + strafe)/creepincrement;
         double RF = (speed - turn - strafe)/creepincrement;
-        for (int i=0; i<36000; i++){
+        while(leftBack.getCurrentPosition() < 1200){
             leftBack.setPower(LB);
             leftFront.setPower(LF);
             rightBack.setPower(RB);
             rightFront.setPower(RF);
             idle();
         }
+        lb_loc2position = leftBack.getCurrentPosition();
         telemetry.addData("position", leftBack.getCurrentPosition());
         //after was encoder position 3774
         telemetry.update();
+        sleep(1000);
         leftBack.setPower(0);
         leftFront.setPower(0);
         rightBack.setPower(0);
@@ -318,14 +330,17 @@ public class ConceptTensorFlowObjectDetectionWebcamtest extends LinearOpMode {
         double RB = (speed - turn + strafe)/creepincrement;
         double RF = (speed - turn - strafe)/creepincrement;
 
-        for (int i=0; i<44000; i++){
+        while(leftBack.getCurrentPosition()<3200){
             leftBack.setPower(LB);
             leftFront.setPower(LF);
             rightBack.setPower(RB);
             rightFront.setPower(RF);
         }
-        telemetry.addData("position", leftBack.getCurrentPosition());
+        lb_loc1position = leftBack.getCurrentPosition();
+        telemetry.addData("2pos",lb_loc2position);
+        telemetry.addData("1pos",lb_loc1position);
         telemetry.update();
+        sleep(1000);
         leftBack.setPower(0);
         leftFront.setPower(0);
         rightBack.setPower(0);
